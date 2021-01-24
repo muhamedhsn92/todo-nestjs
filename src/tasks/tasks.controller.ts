@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query,
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTaskFilterDto } from './dto/get-task-filter.dto';
 import { TaskStatusValidationPipe } from './pipes/task-status-validation.pipe';
+import { TaskStatus } from './task-status.enum';
 import { Task } from './task.entity';
 import { TasksService } from './tasks.service';
 
@@ -9,14 +10,11 @@ import { TasksService } from './tasks.service';
 export class TasksController {
     constructor(private taskService: TasksService) {
     }
-    // @Get()
-    // getTasks(@Query(ValidationPipe) filterDto: GetTaskFilterDto): Task[] {
-    //     if (Object.keys(filterDto).length) {
-    //         return this.taskService.getTaskWithFilters(filterDto);
-    //     } else {
-    //         return this.taskService.getAllTasks();
-    //     }
-    // }
+
+    @Get()
+    getTasks(@Query(ValidationPipe) filterDto: GetTaskFilterDto):Promise<Task[]> {
+        return this.taskService.getTask(filterDto);
+    }
     @Get('/:id')
     getTaskById(@Param('id', ParseIntPipe) id: number): Promise<Task> {
         return this.taskService.getTaskById(id);
@@ -43,13 +41,15 @@ export class TasksController {
     createTask(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
         return this.taskService.createTask(createTaskDto);
     }
-    // @Patch('/:id/status')
-    // updateTaskStatus(@Param('id') id: string,
-    //     @Body('status', TaskStatusValidationPipe) status: TaskStatus): Task {
-    //     return this.taskService.updateTaskStatus(id, status)
-    // }
-    // @Delete('/:id')
-    // deleteTask(@Param('id') id: string) {
-    //     this.taskService.deleteTask(id);
-    // }
+    @Patch('/:id/status')
+    updateTaskStatus(
+        @Param('id', ParseIntPipe) id: number,
+        @Body('status', TaskStatusValidationPipe) status: TaskStatus): Promise<Task> {
+        return this.taskService.updateTask(id, status)
+    }
+
+    @Delete('/:id')
+    deleteTask(@Param('id', ParseIntPipe) id: number): Promise<void> {
+        return this.taskService.deleteTask(id);
+    }
 }
